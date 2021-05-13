@@ -3,7 +3,7 @@
 var defaults = require('../core/core.defaults');
 var Element = require('../core/core.element');
 var helpers = require('../helpers/index');
-var plugins = require('./core.plugins');
+var plugins = require('../core/core.plugins');
 
 var valueOrDefault = helpers.valueOrDefault;
 
