@@ -32,7 +32,12 @@ var exports = {
 	 * @param {number} radius - The rounded amount (in pixels) for the four corners.
 	 * @todo handle `radius` as top-left, top-right, bottom-right, bottom-left array/object?
 	 */
-	roundedRect: function(ctx, x, y, width, height, radius) {
+	roundedRect: function(ctx, x, y, width, height, radius, beginPath = false, rotation = 0) {
+
+		var rad = (rotation || 0) * RAD_PER_DEG;
+		ctx.save();
+		ctx.rotate(rad);
+		if (beginPath) ctx.beginPath();
 		if (radius) {
 			var r = Math.min(radius, height / 2, width / 2);
 			var left = x + r;
@@ -61,6 +66,7 @@ var exports = {
 		} else {
 			ctx.rect(x, y, width, height);
 		}
+		ctx.restore();
 	},
 
 	drawPoint: function(ctx, style, radius, x, y, rotation) {

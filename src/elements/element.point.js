@@ -3,6 +3,7 @@
 var defaults = require('../core/core.defaults');
 var Element = require('../core/core.element');
 var helpers = require('../helpers/index');
+var plugins = require('./core.plugins');
 
 var valueOrDefault = helpers.valueOrDefault;
 
@@ -68,6 +69,7 @@ module.exports = Element.extend({
 	},
 
 	draw: function(chartArea) {
+		var me = this;
 		var vm = this._view;
 		var ctx = this._chart.ctx;
 		var pointStyle = vm.pointStyle;
@@ -77,6 +79,13 @@ module.exports = Element.extend({
 		var y = vm.y;
 		var globalDefaults = defaults.global;
 		var defaultColor = globalDefaults.defaultColor; // eslint-disable-line no-shadow
+		var args = {
+			me: this,
+			ctx: ctx,
+			x: x,
+			y: y,
+			rotation: rotation,
+		};
 
 		if (vm.skip) {
 			return;
@@ -87,7 +96,11 @@ module.exports = Element.extend({
 			ctx.strokeStyle = vm.borderColor || defaultColor;
 			ctx.lineWidth = valueOrDefault(vm.borderWidth, globalDefaults.elements.point.borderWidth);
 			ctx.fillStyle = vm.backgroundColor || defaultColor;
+			if (plugins.notify(me, 'beforePointDraw', [args]) === false) {
+				return;
+			}
 			helpers.canvas.drawPoint(ctx, pointStyle, radius, x, y, rotation);
+			plugins.notify(me, 'afterPointDraw', [args]);
 		}
 	}
 });
