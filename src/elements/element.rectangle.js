@@ -3,6 +3,7 @@
 var defaults = require('../core/core.defaults');
 var Element = require('../core/core.element');
 var helpers = require('../helpers/index');
+var plugins = require('../core/core.plugins');
 
 var defaultColor = defaults.global.defaultColor;
 

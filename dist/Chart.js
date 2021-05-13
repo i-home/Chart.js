@@ -4860,7 +4860,7 @@ var element_rectangle = core_element.extend({
 			vertical: isVertical(vm)
 		};
 
-		if (plugins.notify(me, 'beforeRectDraw', [args]) === false) {
+		if (core_plugins.notify(me, 'beforeRectDraw', [args]) === false) {
 			return;
 		}
 		ctx.fillStyle = vm.backgroundColor;
@@ -4878,7 +4878,7 @@ var element_rectangle = core_element.extend({
 		ctx.rect(inner.x, inner.y, inner.w, inner.h);
 		ctx.fill('evenodd');
 		ctx.restore();
-		plugins.notify(me, 'afterRectDraw', [args]);
+		core_plugins.notify(me, 'afterRectDraw', [args]);
 	},
 
 	height: function() {
@@ -16049,13 +16049,13 @@ var plugin_title = {
 	}
 };
 
-var plugins$1 = {};
+var plugins = {};
 var filler = plugin_filler;
 var legend = plugin_legend;
 var title = plugin_title;
-plugins$1.filler = filler;
-plugins$1.legend = legend;
-plugins$1.title = title;
+plugins.filler = filler;
+plugins.legend = legend;
+plugins.title = title;
 
 /**
  * @namespace Chart
@@ -16095,9 +16095,9 @@ core_controller.helpers.each(scales, function(scale, type) {
 
 // Loading built-in plugins
 
-for (var k in plugins$1) {
-	if (plugins$1.hasOwnProperty(k)) {
-		core_controller.plugins.register(plugins$1[k]);
+for (var k in plugins) {
+	if (plugins.hasOwnProperty(k)) {
+		core_controller.plugins.register(plugins[k]);
 	}
 }
 
@@ -16126,7 +16126,7 @@ core_controller.Chart = core_controller;
  * @todo remove at version 3
  * @private
  */
-core_controller.Legend = plugins$1.legend._element;
+core_controller.Legend = plugins.legend._element;
 
 /**
  * Provided for backward compatibility, not available anymore
@@ -16135,7 +16135,7 @@ core_controller.Legend = plugins$1.legend._element;
  * @todo remove at version 3
  * @private
  */
-core_controller.Title = plugins$1.title._element;
+core_controller.Title = plugins.title._element;
 
 /**
  * Provided for backward compatibility, use Chart.plugins instead
