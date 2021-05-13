@@ -86,6 +86,7 @@ module.exports = Element.extend({
 			ctx: ctx,
 			x: x,
 			y: y,
+			radius: radius,
 			rotation: rotation,
 		};
 

@@ -4694,6 +4694,7 @@ var element_point = core_element.extend({
 			ctx: ctx,
 			x: x,
 			y: y,
+			radius: radius,
 			rotation: rotation,
 		};
 
