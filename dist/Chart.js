@@ -4856,7 +4856,7 @@ var element_rectangle = core_element.extend({
 			index: me._index,
 			datasets: me._chart.data.datasets,
 			ctx: ctx,
-			rect: rect,
+			rects: rects,
 			vertical: isVertical(vm)
 		};
 
