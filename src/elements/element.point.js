@@ -80,6 +80,7 @@ module.exports = Element.extend({
 		var globalDefaults = defaults.global;
 		var defaultColor = globalDefaults.defaultColor; // eslint-disable-line no-shadow
 		var args = {
+			vm: vm,
 			datasetIndex: me._datasetIndex,
 			index: me._index,
 			datasets: me._chart.data.datasets,

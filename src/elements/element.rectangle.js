@@ -134,12 +134,26 @@ module.exports = Element.extend({
 	_type: 'rectangle',
 
 	draw: function() {
+		var me = this;
 		var ctx = this._chart.ctx;
 		var vm = this._view;
 		var rects = boundingRects(vm);
 		var outer = rects.outer;
 		var inner = rects.inner;
 
+		var args = {
+			vm: vm,
+			datasetIndex: me._datasetIndex,
+			index: me._index,
+			datasets: me._chart.data.datasets,
+			ctx: ctx,
+			rect: rect,
+			vertical: isVertical(vm)
+		};
+
+		if (plugins.notify(me, 'beforeRectDraw', [args]) === false) {
+			return;
+		}
 		ctx.fillStyle = vm.backgroundColor;
 		ctx.fillRect(outer.x, outer.y, outer.w, outer.h);
 
@@ -155,6 +169,7 @@ module.exports = Element.extend({
 		ctx.rect(inner.x, inner.y, inner.w, inner.h);
 		ctx.fill('evenodd');
 		ctx.restore();
+		plugins.notify(me, 'afterRectDraw', [args]);
 	},
 
 	height: function() {
