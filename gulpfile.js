@@ -19,7 +19,7 @@ var argv = yargs
   .argv;
 
 var srcDir = './src/';
-var outDir = './dist/';
+var outDir = './build/';
 
 gulp.task('bower', bowerTask);
 gulp.task('build', buildTask);
@@ -87,15 +87,15 @@ function buildTask() {
 function packageTask() {
   return merge(
       // gather "regular" files landing in the package root
-      gulp.src([outDir + '*.js', outDir + '*.css', 'LICENSE.md']),
+      gulp.src('./dist/*'),
 
       // since we moved the dist files one folder up (package root), we need to rewrite
       // samples src="../dist/ to src="../ and then copy them in the /samples directory.
-      gulp.src('./samples/**/*', { base: '.' })
-        .pipe(streamify(replace(/src="((?:\.\.\/)+)dist\//g, 'src="$1')))
+      //gulp.src('./samples/**/*', { base: '.' })
+      //  .pipe(streamify(replace(/src="((?:\.\.\/)+)dist\//g, 'src="$1')))
   )
   // finally, create the zip archive
-  .pipe(zip('Chart.js.zip'))
+  //.pipe(zip('Chart.js.zip'))
   .pipe(gulp.dest(outDir));
 }
 
