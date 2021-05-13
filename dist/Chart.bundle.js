@@ -4871,6 +4871,7 @@ var element_rectangle = core_element.extend({
 		ctx.fillRect(outer.x, outer.y, outer.w, outer.h);
 
 		if (outer.w === inner.w && outer.h === inner.h) {
+			core_plugins.notify(me, 'afterRectDraw', [args]);
 			return;
 		}
 

@@ -159,6 +159,7 @@ module.exports = Element.extend({
 		ctx.fillRect(outer.x, outer.y, outer.w, outer.h);
 
 		if (outer.w === inner.w && outer.h === inner.h) {
+			plugins.notify(me, 'afterRectDraw', [args]);
 			return;
 		}
 
