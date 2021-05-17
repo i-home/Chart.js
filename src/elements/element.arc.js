@@ -175,6 +175,7 @@ module.exports = Element.extend({
 			fullCircles: Math.floor(vm.circumference / TAU)
 		};
 		var i;
+		var me = this;
 		var args = {
 			vm: vm,
 			datasetIndex: me._datasetIndex,
