@@ -175,6 +175,21 @@ module.exports = Element.extend({
 			fullCircles: Math.floor(vm.circumference / TAU)
 		};
 		var i;
+		var args = {
+			vm: vm,
+			datasetIndex: me._datasetIndex,
+			index: me._index,
+			datasets: me._chart.data.datasets,
+			ctx: ctx,
+			x: vm.x,
+			y: vm.y,
+			innerRadius: vm.innerRadius,
+			outerRadius: Math.max(vm.outerRadius - pixelMargin, 0),
+			pixelMargin: pixelMargin,
+			startAngle: vm.startAngle,
+			endAngle: vm.endAngle,
+			fullCircles: Math.floor(vm.circumference / TAU)
+		};
 
 		if (plugins.notify(me, 'beforeArcDraw', [args]) === false) {
 			return;
