@@ -4133,6 +4133,173 @@ DatasetController.extend = helpers$1.inherits;
 
 var core_datasetController = DatasetController;
 
+core_defaults._set('global', {
+	plugins: {}
+});
+
+/**
+ * The plugin service singleton
+ * @namespace Chart.plugins
+ * @since 2.1.0
+ */
+var core_plugins = {
+	/**
+	 * Globally registered plugins.
+	 * @private
+	 */
+	_plugins: [],
+
+	/**
+	 * This identifier is used to invalidate the descriptors cache attached to each chart
+	 * when a global plugin is registered or unregistered. In this case, the cache ID is
+	 * incremented and descriptors are regenerated during following API calls.
+	 * @private
+	 */
+	_cacheId: 0,
+
+	/**
+	 * Registers the given plugin(s) if not already registered.
+	 * @param {IPlugin[]|IPlugin} plugins plugin instance(s).
+	 */
+	register: function(plugins) {
+		var p = this._plugins;
+		([]).concat(plugins).forEach(function(plugin) {
+			if (p.indexOf(plugin) === -1) {
+				p.push(plugin);
+			}
+		});
+
+		this._cacheId++;
+	},
+
+	/**
+	 * Unregisters the given plugin(s) only if registered.
+	 * @param {IPlugin[]|IPlugin} plugins plugin instance(s).
+	 */
+	unregister: function(plugins) {
+		var p = this._plugins;
+		([]).concat(plugins).forEach(function(plugin) {
+			var idx = p.indexOf(plugin);
+			if (idx !== -1) {
+				p.splice(idx, 1);
+			}
+		});
+
+		this._cacheId++;
+	},
+
+	/**
+	 * Remove all registered plugins.
+	 * @since 2.1.5
+	 */
+	clear: function() {
+		this._plugins = [];
+		this._cacheId++;
+	},
+
+	/**
+	 * Returns the number of registered plugins?
+	 * @returns {number}
+	 * @since 2.1.5
+	 */
+	count: function() {
+		return this._plugins.length;
+	},
+
+	/**
+	 * Returns all registered plugin instances.
+	 * @returns {IPlugin[]} array of plugin objects.
+	 * @since 2.1.5
+	 */
+	getAll: function() {
+		return this._plugins;
+	},
+
+	/**
+	 * Calls enabled plugins for `chart` on the specified hook and with the given args.
+	 * This method immediately returns as soon as a plugin explicitly returns false. The
+	 * returned value can be used, for instance, to interrupt the current action.
+	 * @param {Chart} chart - The chart instance for which plugins should be called.
+	 * @param {string} hook - The name of the plugin method to call (e.g. 'beforeUpdate').
+	 * @param {Array} [args] - Extra arguments to apply to the hook call.
+	 * @returns {boolean} false if any of the plugins return false, else returns true.
+	 */
+	notify: function(chart, hook, args) {
+		var descriptors = this.descriptors(chart);
+		var ilen = descriptors.length;
+		var i, descriptor, plugin, params, method;
+
+		for (i = 0; i < ilen; ++i) {
+			descriptor = descriptors[i];
+			plugin = descriptor.plugin;
+			method = plugin[hook];
+			if (typeof method === 'function') {
+				params = [chart].concat(args || []);
+				params.push(descriptor.options);
+				if (method.apply(plugin, params) === false) {
+					return false;
+				}
+			}
+		}
+
+		return true;
+	},
+
+	/**
+	 * Returns descriptors of enabled plugins for the given chart.
+	 * @returns {object[]} [{ plugin, options }]
+	 * @private
+	 */
+	descriptors: function(chart) {
+		var cache = chart.$plugins || (chart.$plugins = {});
+		if (cache.id === this._cacheId) {
+			return cache.descriptors;
+		}
+
+		var plugins = [];
+		var descriptors = [];
+		var config = (chart && chart.config) || {};
+		var options = (config.options && config.options.plugins) || {};
+
+		this._plugins.concat(config.plugins || []).forEach(function(plugin) {
+			var idx = plugins.indexOf(plugin);
+			if (idx !== -1) {
+				return;
+			}
+
+			var id = plugin.id;
+			var opts = options[id];
+			if (opts === false) {
+				return;
+			}
+
+			if (opts === true) {
+				opts = helpers$1.clone(core_defaults.global.plugins[id]);
+			}
+
+			plugins.push(plugin);
+			descriptors.push({
+				plugin: plugin,
+				options: opts || {}
+			});
+		});
+
+		cache.descriptors = descriptors;
+		cache.id = this._cacheId;
+		return descriptors;
+	},
+
+	/**
+	 * Invalidates cache for the given chart: descriptors hold a reference on plugin option,
+	 * but in some cases, this reference can be changed by the user when updating options.
+	 * https://github.com/chartjs/Chart.js/issues/5111#issuecomment-355934167
+	 * @private
+	 */
+	_invalidate: function(chart) {
+		delete chart.$plugins;
+	}
+};
+
 var TAU = Math.PI * 2;
 
 core_defaults._set('global', {
@@ -4305,6 +4472,9 @@ var element_arc = core_element.extend({
 		};
 		var i;
 
+		if (core_plugins.notify(me, 'beforeArcDraw', [args]) === false) {
+			return;
+		}
 		ctx.save();
 
 		ctx.fillStyle = vm.backgroundColor;
@@ -4333,6 +4503,7 @@ var element_arc = core_element.extend({
 		}
 
 		ctx.restore();
+		core_plugins.notify(me, 'afterArcDraw', [args]);
 	}
 });
 
@@ -4441,173 +4612,6 @@ var element_line = core_element.extend({
 		ctx.restore();
 	}
 });
-
-core_defaults._set('global', {
-	plugins: {}
-});
-
-/**
- * The plugin service singleton
- * @namespace Chart.plugins
- * @since 2.1.0
- */
-var core_plugins = {
-	/**
-	 * Globally registered plugins.
-	 * @private
-	 */
-	_plugins: [],
-
-	/**
-	 * This identifier is used to invalidate the descriptors cache attached to each chart
-	 * when a global plugin is registered or unregistered. In this case, the cache ID is
-	 * incremented and descriptors are regenerated during following API calls.
-	 * @private
-	 */
-	_cacheId: 0,
-
-	/**
-	 * Registers the given plugin(s) if not already registered.
-	 * @param {IPlugin[]|IPlugin} plugins plugin instance(s).
-	 */
-	register: function(plugins) {
-		var p = this._plugins;
-		([]).concat(plugins).forEach(function(plugin) {
-			if (p.indexOf(plugin) === -1) {
-				p.push(plugin);
-			}
-		});
-
-		this._cacheId++;
-	},
-
-	/**
-	 * Unregisters the given plugin(s) only if registered.
-	 * @param {IPlugin[]|IPlugin} plugins plugin instance(s).
-	 */
-	unregister: function(plugins) {
-		var p = this._plugins;
-		([]).concat(plugins).forEach(function(plugin) {
-			var idx = p.indexOf(plugin);
-			if (idx !== -1) {
-				p.splice(idx, 1);
-			}
-		});
-
-		this._cacheId++;
-	},
-
-	/**
-	 * Remove all registered plugins.
-	 * @since 2.1.5
-	 */
-	clear: function() {
-		this._plugins = [];
-		this._cacheId++;
-	},
-
-	/**
-	 * Returns the number of registered plugins?
-	 * @returns {number}
-	 * @since 2.1.5
-	 */
-	count: function() {
-		return this._plugins.length;
-	},
-
-	/**
-	 * Returns all registered plugin instances.
-	 * @returns {IPlugin[]} array of plugin objects.
-	 * @since 2.1.5
-	 */
-	getAll: function() {
-		return this._plugins;
-	},
-
-	/**
-	 * Calls enabled plugins for `chart` on the specified hook and with the given args.
-	 * This method immediately returns as soon as a plugin explicitly returns false. The
-	 * returned value can be used, for instance, to interrupt the current action.
-	 * @param {Chart} chart - The chart instance for which plugins should be called.
-	 * @param {string} hook - The name of the plugin method to call (e.g. 'beforeUpdate').
-	 * @param {Array} [args] - Extra arguments to apply to the hook call.
-	 * @returns {boolean} false if any of the plugins return false, else returns true.
-	 */
-	notify: function(chart, hook, args) {
-		var descriptors = this.descriptors(chart);
-		var ilen = descriptors.length;
-		var i, descriptor, plugin, params, method;
-
-		for (i = 0; i < ilen; ++i) {
-			descriptor = descriptors[i];
-			plugin = descriptor.plugin;
-			method = plugin[hook];
-			if (typeof method === 'function') {
-				params = [chart].concat(args || []);
-				params.push(descriptor.options);
-				if (method.apply(plugin, params) === false) {
-					return false;
-				}
-			}
-		}
-
-		return true;
-	},
-
-	/**
-	 * Returns descriptors of enabled plugins for the given chart.
-	 * @returns {object[]} [{ plugin, options }]
-	 * @private
-	 */
-	descriptors: function(chart) {
-		var cache = chart.$plugins || (chart.$plugins = {});
-		if (cache.id === this._cacheId) {
-			return cache.descriptors;
-		}
-
-		var plugins = [];
-		var descriptors = [];
-		var config = (chart && chart.config) || {};
-		var options = (config.options && config.options.plugins) || {};
-
-		this._plugins.concat(config.plugins || []).forEach(function(plugin) {
-			var idx = plugins.indexOf(plugin);
-			if (idx !== -1) {
-				return;
-			}
-
-			var id = plugin.id;
-			var opts = options[id];
-			if (opts === false) {
-				return;
-			}
-
-			if (opts === true) {
-				opts = helpers$1.clone(core_defaults.global.plugins[id]);
-			}
-
-			plugins.push(plugin);
-			descriptors.push({
-				plugin: plugin,
-				options: opts || {}
-			});
-		});
-
-		cache.descriptors = descriptors;
-		cache.id = this._cacheId;
-		return descriptors;
-	},
-
-	/**
-	 * Invalidates cache for the given chart: descriptors hold a reference on plugin option,
-	 * but in some cases, this reference can be changed by the user when updating options.
-	 * https://github.com/chartjs/Chart.js/issues/5111#issuecomment-355934167
-	 * @private
-	 */
-	_invalidate: function(chart) {
-		delete chart.$plugins;
-	}
-};
 
 var valueOrDefault$2 = helpers$1.valueOrDefault;
 

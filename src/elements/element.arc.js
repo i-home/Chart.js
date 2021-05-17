@@ -3,6 +3,7 @@
 var defaults = require('../core/core.defaults');
 var Element = require('../core/core.element');
 var helpers = require('../helpers/index');
+var plugins = require('../core/core.plugins');
 var TAU = Math.PI * 2;
 
 defaults._set('global', {
@@ -175,6 +176,9 @@ module.exports = Element.extend({
 		};
 		var i;
 
+		if (plugins.notify(me, 'beforeArcDraw', [args]) === false) {
+			return;
+		}
 		ctx.save();
 
 		ctx.fillStyle = vm.backgroundColor;
@@ -203,5 +207,6 @@ module.exports = Element.extend({
 		}
 
 		ctx.restore();
+		plugins.notify(me, 'afterArcDraw', [args]);
 	}
 });
