@@ -19992,7 +19992,7 @@ var Legend = core_element.extend({
 		me.paddingLeft = 0;
 		me.paddingTop = 0;
 		me.paddingRight = 0;
-		me.paddingBottom = 0;
+		me.paddingBottom = 50;
 
 		// Reset minSize
 		me.minSize = {
