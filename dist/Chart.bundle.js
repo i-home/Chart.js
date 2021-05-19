@@ -20089,7 +20089,7 @@ var Legend = core_element.extend({
 
 				lineWidths[lineWidths.length - 1] += width + labelOpts.padding;
 			});
-			var padding = 10; try { padding = opts.layout.padding.bottom; } catch (ignore) { }			minSize.height += totalHeight + padding;
+			var padding = 0; try { padding = opts.layout.padding.bottom; } catch (ignore) { }			minSize.height += totalHeight + padding;
 
 		} else {
 			var vPadding = labelOpts.padding;
@@ -20128,7 +20128,7 @@ var Legend = core_element.extend({
 			totalWidth += currentColWidth;
 			columnWidths.push(currentColWidth);
 			columnHeights.push(currentColHeight);
-			var padding = 10; try { padding = opts.layout.padding.left; } catch (ignore) { }			minSize.width += totalWidth + padding;
+			var padding = 0; try { padding = opts.layout.padding.left; } catch (ignore) { }			minSize.width += totalWidth + padding;
 		}
 
 		me.width = minSize.width;
