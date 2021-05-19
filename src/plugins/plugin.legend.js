@@ -19,7 +19,7 @@ defaults._set('global', {
 		weight: 1000,
 
 		// a callback that will handle
-		onClick: function(e, legendItem) {
+		onClick: function (e, legendItem) {
 			var index = legendItem.datasetIndex;
 			var ci = this.chart;
 			var meta = ci.getDatasetMeta(index);
@@ -48,12 +48,12 @@ defaults._set('global', {
 			// lineDashOffset :
 			// lineJoin :
 			// lineWidth :
-			generateLabels: function(chart) {
+			generateLabels: function (chart) {
 				var datasets = chart.data.datasets;
 				var options = chart.options.legend || {};
 				var usePointStyle = options.labels && options.labels.usePointStyle;
 
-				return chart._getSortedDatasetMetas().map(function(meta) {
+				return chart._getSortedDatasetMetas().map(function (meta) {
 					var style = meta.controller.getStyle(usePointStyle ? 0 : undefined);
 
 					return {
@@ -77,7 +77,7 @@ defaults._set('global', {
 		}
 	},
 
-	legendCallback: function(chart) {
+	legendCallback: function (chart) {
 		var list = document.createElement('ul');
 		var datasets = chart.data.datasets;
 		var globalDefaults = defaults.global;
@@ -113,9 +113,10 @@ function getBoxWidth(labelOpts, fontSize) {
 /**
  * IMPORTANT: this class is exposed publicly as Chart.Legend, backward compatibility required!
  */
+
 var Legend = Element.extend({
 
-	initialize: function(config) {
+	initialize: function (config) {
 		var me = this;
 		helpers.extend(me, config);
 
@@ -123,8 +124,8 @@ var Legend = Element.extend({
 		me.legendHitBoxes = [];
 
 		/**
- 		 * @private
- 		 */
+			 * @private
+			 */
 		me._hoveredItem = null;
 
 		// Are we in doughnut mode which has a different data type
@@ -136,7 +137,7 @@ var Legend = Element.extend({
 	// Any function can be extended by the legend type
 
 	beforeUpdate: noop,
-	update: function(maxWidth, maxHeight, margins) {
+	update: function (maxWidth, maxHeight, margins) {
 		var me = this;
 
 		// Update Lifecycle - Probably don't want to ever extend or overwrite this function ;)
@@ -170,7 +171,7 @@ var Legend = Element.extend({
 	//
 
 	beforeSetDimensions: noop,
-	setDimensions: function() {
+	setDimensions: function () {
 		var me = this;
 		// Set the unconstrained dimension before label rotation
 		if (me.isHorizontal()) {
@@ -203,13 +204,13 @@ var Legend = Element.extend({
 	//
 
 	beforeBuildLabels: noop,
-	buildLabels: function() {
+	buildLabels: function () {
 		var me = this;
 		var labelOpts = me.options.labels || {};
 		var legendItems = helpers.callback(labelOpts.generateLabels, [me.chart], me) || [];
 
 		if (labelOpts.filter) {
-			legendItems = legendItems.filter(function(item) {
+			legendItems = legendItems.filter(function (item) {
 				return labelOpts.filter(item, me.chart.data);
 			});
 		}
@@ -225,7 +226,7 @@ var Legend = Element.extend({
 	//
 
 	beforeFit: noop,
-	fit: function() {
+	fit: function () {
 		var me = this;
 		var opts = me.options;
 		var labelOpts = opts.labels;
@@ -267,7 +268,7 @@ var Legend = Element.extend({
 			ctx.textAlign = 'left';
 			ctx.textBaseline = 'middle';
 
-			helpers.each(me.legendItems, function(legendItem, i) {
+			helpers.each(me.legendItems, function (legendItem, i) {
 				var boxWidth = getBoxWidth(labelOpts, fontSize);
 				var width = boxWidth + (fontSize / 2) + ctx.measureText(legendItem.text).width;
 
@@ -286,8 +287,8 @@ var Legend = Element.extend({
 
 				lineWidths[lineWidths.length - 1] += width + labelOpts.padding;
 			});
-
-			minSize.height += totalHeight;
+			var padding = 0; try { padding = opts.layout.padding.bottom; } catch (ignore) { };
+			minSize.height += totalHeight + padding;
 
 		} else {
 			var vPadding = labelOpts.padding;
@@ -297,7 +298,7 @@ var Legend = Element.extend({
 			var currentColWidth = 0;
 			var currentColHeight = 0;
 
-			helpers.each(me.legendItems, function(legendItem, i) {
+			helpers.each(me.legendItems, function (legendItem, i) {
 				var boxWidth = getBoxWidth(labelOpts, fontSize);
 				var itemWidth = boxWidth + (fontSize / 2) + ctx.measureText(legendItem.text).width;
 
@@ -326,7 +327,8 @@ var Legend = Element.extend({
 			totalWidth += currentColWidth;
 			columnWidths.push(currentColWidth);
 			columnHeights.push(currentColHeight);
-			minSize.width += totalWidth;
+			var padding = 0; try { padding = opts.layout.padding.left; } catch (ignore) { };
+			minSize.width += totalWidth + padding;
 		}
 
 		me.width = minSize.width;
@@ -335,12 +337,12 @@ var Legend = Element.extend({
 	afterFit: noop,
 
 	// Shared Methods
-	isHorizontal: function() {
+	isHorizontal: function () {
 		return this.options.position === 'top' || this.options.position === 'bottom';
 	},
 
 	// Actually draw the legend on the canvas
-	draw: function() {
+	draw: function () {
 		var me = this;
 		var opts = me.options;
 		var labelOpts = opts.labels;
@@ -375,7 +377,7 @@ var Legend = Element.extend({
 		var hitboxes = me.legendHitBoxes;
 
 		// current position
-		var drawLegendBox = function(x, y, legendItem) {
+		var drawLegendBox = function (x, y, legendItem) {
 			if (isNaN(boxWidth) || boxWidth <= 0) {
 				return;
 			}
@@ -416,7 +418,7 @@ var Legend = Element.extend({
 			ctx.restore();
 		};
 
-		var fillText = function(x, y, legendItem, textWidth) {
+		var fillText = function (x, y, legendItem, textWidth) {
 			var halfFontSize = fontSize / 2;
 			var xLeft = rtlHelper.xPlus(x, boxWidth + halfFontSize);
 			var yMiddle = y + halfFontSize;
@@ -433,14 +435,14 @@ var Legend = Element.extend({
 			}
 		};
 
-		var alignmentOffset = function(dimension, blockSize) {
+		var alignmentOffset = function (dimension, blockSize) {
 			switch (opts.align) {
-			case 'start':
-				return labelOpts.padding;
-			case 'end':
-				return dimension - blockSize;
-			default: // center
-				return (dimension - blockSize + labelOpts.padding) / 2;
+				case 'start':
+					return labelOpts.padding;
+				case 'end':
+					return dimension - blockSize;
+				default: // center
+					return (dimension - blockSize + labelOpts.padding) / 2;
 			}
 		};
 
@@ -463,7 +465,7 @@ var Legend = Element.extend({
 		helpers.rtl.overrideTextDirection(me.ctx, opts.textDirection);
 
 		var itemHeight = fontSize + labelOpts.padding;
-		helpers.each(me.legendItems, function(legendItem, i) {
+		helpers.each(me.legendItems, function (legendItem, i) {
 			var textWidth = ctx.measureText(legendItem.text).width;
 			var width = boxWidth + (fontSize / 2) + textWidth;
 			var x = cursor.x;
@@ -509,7 +511,7 @@ var Legend = Element.extend({
 	/**
 	 * @private
 	 */
-	_getLegendItemAt: function(x, y) {
+	_getLegendItemAt: function (x, y) {
 		var me = this;
 		var i, hitBox, lh;
 
@@ -534,7 +536,7 @@ var Legend = Element.extend({
 	 * @private
 	 * @param {IEvent} event - The event to handle
 	 */
-	handleEvent: function(e) {
+	handleEvent: function (e) {
 		var me = this;
 		var opts = me.options;
 		var type = e.type === 'mouseup' ? 'click' : e.type;
@@ -600,7 +602,7 @@ module.exports = {
 	 */
 	_element: Legend,
 
-	beforeInit: function(chart) {
+	beforeInit: function (chart) {
 		var legendOpts = chart.options.legend;
 
 		if (legendOpts) {
@@ -608,7 +610,7 @@ module.exports = {
 		}
 	},
 
-	beforeUpdate: function(chart) {
+	beforeUpdate: function (chart) {
 		var legendOpts = chart.options.legend;
 		var legend = chart.legend;
 
@@ -627,7 +629,7 @@ module.exports = {
 		}
 	},
 
-	afterEvent: function(chart, e) {
+	afterEvent: function (chart, e) {
 		var legend = chart.legend;
 		if (legend) {
 			legend.handleEvent(e);
