@@ -20089,7 +20089,7 @@ var Legend = core_element.extend({
 
 				lineWidths[lineWidths.length - 1] += width + labelOpts.padding;
 			});
-			var padding = opts.layout || opts.layout.padding || 0;
+			var padding = opts.layout && opts.layout.padding || 0;
 			minSize.height += totalHeight + padding;
 
 		} else {
@@ -20129,7 +20129,7 @@ var Legend = core_element.extend({
 			totalWidth += currentColWidth;
 			columnWidths.push(currentColWidth);
 			columnHeights.push(currentColHeight);
-			var padding = opts.layout || opts.layout.padding || 0;
+			var padding = opts.layout && opts.layout.padding || 0;
 			minSize.width += totalWidth + padding;
 		}
 
